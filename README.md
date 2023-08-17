@@ -1,24 +1,27 @@
-# Very short description of the package
-
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mayanksdudakiya/state-machine-for-orders.svg?style=flat-square)](https://packagist.org/packages/mayanksdudakiya/state-machine-for-orders)
-[![Total Downloads](https://img.shields.io/packagist/dt/mayanksdudakiya/state-machine-for-orders.svg?style=flat-square)](https://packagist.org/packages/mayanksdudakiya/state-machine-for-orders)
-![GitHub Actions](https://github.com/mayanksdudakiya/state-machine-for-orders/actions/workflows/main.yml/badge.svg)
-
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+# Currency Converter Laravel Package - Skill Evaluation Test
 
 ## Installation
 
-You can install the package via composer:
+By default this package will be installed in pet-shop-api project
+Clone this repo into `packages` folder in: https://github.com/mayanksdudakiya/pet-shop-api
+
+Add below line in composer.json if not exists and run the `composer require mayanksdudakiya/state-machine-for-orders:dev-main`
 
 ```bash
-composer require mayanksdudakiya/state-machine-for-orders
+"require": {
+    "mayanksdudakiya/state-machine-for-orders": "dev-main",
+},
+"repositories": [
+        {
+            "type": "path",
+            "url": "packages/mayanksdudakiya/state-machine-for-orders",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
 ```
 
-## Usage
-
-```php
-// Usage description here
-```
 
 ### Testing
 
@@ -26,27 +29,12 @@ composer require mayanksdudakiya/state-machine-for-orders
 composer test
 ```
 
-### Changelog
+### Swagger Doc
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+```bash
+{{baseUrl}}/api/documentation#/
+```
 
-## Contributing
+### Swagger Currency Converter Demo
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-### Security
-
-If you discover any security related issues, please email mayanksdudakiya@gmail.com instead of using the issue tracker.
-
-## Credits
-
--   [Mayank Dudakiya](https://github.com/mayanksdudakiya)
--   [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
