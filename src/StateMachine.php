@@ -9,20 +9,22 @@ trait StateMachine
 {
     public function __construct(private array $config = [])
     {
-        $this->config = config('states-and-transitions');
-
+        $this->initializeConfig();
         $this->setDefaultState();
-        $this->doesModelHasStateProperty();
+        $this->validateModelProperty();
+    }
+
+    private function initializeConfig(): void
+    {
+        $this->config = config('states-and-transitions');
     }
 
     private function setDefaultState(): void
     {
-        if (!isset($this->config['property_path'])) {
-            $this->config['property_path'] = 'state';
-        }
+        $this->config['property_path'] ??= 'state';
     }
 
-    private function doesModelHasStateProperty(): void
+    private function validateModelProperty(): void
     {
         $modelProperty = $this->config['property_path'];
         $className = class_basename($this);
