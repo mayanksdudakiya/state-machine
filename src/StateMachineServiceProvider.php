@@ -21,7 +21,7 @@ class StateMachineServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('state-machine.php'),
+                __DIR__.'/../config/states-and-transitions.php' => config_path('states-and-transitions.php'),
             ], 'config');
 
             // Publishing the views.
@@ -50,7 +50,7 @@ class StateMachineServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'state-machine');
+        $this->mergeConfigFrom(__DIR__.'/../config/states-and-transitions.php', 'states-and-transitions');
 
         // Register the main class to use with the facade
         $this->app->singleton('state-machine', function () {
