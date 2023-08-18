@@ -34,9 +34,12 @@ trait StateMachine
 
     public function setGraph(string $graphName): null
     {
-        if (!isset($this->config[$graphName])) {
+        $className = class_basename($this);
 
+        if (!empty($this->config['graph']) && $this->config['graph'] !== $graphName) {
+            throw new InvalidPropertyException("The graph name `{$graphName}` does not exists in the config for the class `{$className}`.");
         }
+
         return null;
     }
 
