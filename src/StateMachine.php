@@ -27,8 +27,8 @@ trait StateMachine
         $modelProperty = $this->config['property_path'];
         $className = class_basename($this);
 
-        if (!property_exists($this, $modelProperty)) {
-            throw new InvalidPropertyException("The class `{$className}` does not have the expected property `{$modelProperty}`.");
+        if (!property_exists($this, $modelProperty) && !method_exists($this, $modelProperty)) {
+            throw new InvalidPropertyException("The class `{$className}` does not have the expected property or relationship method `{$modelProperty}`.");
         }
     }
 
