@@ -1,13 +1,13 @@
 <?php
 
-namespace Mayanksdudakiya\StateMachineForOrders;
+namespace Mayanksdudakiya\StateMachine;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Mayanksdudakiya\StateMachineForOrders\Skeleton\SkeletonClass
+ * @see \Mayanksdudakiya\StateMachine\Skeleton\SkeletonClass
  */
-class StateMachineForOrdersFacade extends Facade
+class StateMachineFacade extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -16,6 +16,6 @@ class StateMachineForOrdersFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'state-machine-for-orders';
+        return 'state-machine';
     }
 }

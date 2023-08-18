@@ -1,11 +1,11 @@
 {
-    "name": "mayanksdudakiya/state-machine-for-orders",
+    "name": "mayanksdudakiya/state-machine",
     "description": "To ensure correct tracking and updating of each status of each each order, it is necessary to implement the State design pattern.",
     "keywords": [
         "mayanksdudakiya",
-        "state-machine-for-orders"
+        "state-machine"
     ],
-    "homepage": "https://github.com/mayanksdudakiya/state-machine-for-orders",
+    "homepage": "https://github.com/mayanksdudakiya/state-machine",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Mayanksdudakiya\\StateMachineForOrders\\": "src"
+            "Mayanksdudakiya\\StateMachine\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mayanksdudakiya\\StateMachineForOrders\\Tests\\": "tests"
+            "Mayanksdudakiya\\StateMachine\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -44,10 +44,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Mayanksdudakiya\\StateMachineForOrders\\StateMachineForOrdersServiceProvider"
+                "Mayanksdudakiya\\StateMachine\\StateMachineServiceProvider"
             ],
             "aliases": {
-                "StateMachineForOrders": "Mayanksdudakiya\\StateMachineForOrders\\StateMachineForOrdersFacade"
+                "StateMachine": "Mayanksdudakiya\\StateMachine\\StateMachineFacade"
             }
         }
     }
