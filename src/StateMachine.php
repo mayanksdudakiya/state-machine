@@ -5,12 +5,14 @@ namespace Mayanksdudakiya\StateMachine;
 use Illuminate\Support\Facades\Config;
 use Mayanksdudakiya\StateMachine\Exceptions\GraphNotFoundException;
 use Mayanksdudakiya\StateMachine\Exceptions\InvalidPropertyException;
+use Mayanksdudakiya\StateMachine\Exceptions\TransitionsException;
 
 trait StateMachine
 {
     public function __construct(
         private array $traitStateConfig = [],
         private array $traitStateFields = [],
+        private array $nextTransitions = [],
         private string $traitStateCurrentField = '',
         private string $traitGraphName = '',
     ) {
@@ -106,20 +108,18 @@ trait StateMachine
         return current($this->traitStateConfig['transitions'][$key]);
     }
 
-    public function getNextTransitions()
+    public function getNextTransitions(): array
     {
         $currentState = $this->getCurrentState()->name;
         $getTransitions = $this->findTransitionsByKeyValue($currentState);
 
-        $nextTransitions = [];
-
         $from = $this->cleanTransitionKey($getTransitions['from']);
 
-        foreach($getTransitions['to'] as $key => $toTransition) {
+        foreach($getTransitions['to'] as $toTransition) {
             $to = $this->cleanTransitionKey($toTransition);
             $transitionKey = "{$from}_to_{$to}";
 
-            $nextTransitions[$transitionKey] = new Transitions(
+            $this->nextTransitions[$transitionKey] = new Transitions(
                 $transitionKey,
                 $from,
                 $to,
@@ -130,11 +130,21 @@ trait StateMachine
             $from = $to;
         }
 
-        return $nextTransitions;
+        return $this->nextTransitions;
     }
 
     private function cleanTransitionKey(string $key): string
     {
         return str_replace(' ', '_', $key);
+    }
+
+    public function process(string $transitionTo)
+    {
+        throw_unless(isset($this->nextTransitions[$transitionTo]), new TransitionsException("Transition not found for `{$transitionTo}`"));
+
+        $resultingState = $this->nextTransitions[$transitionTo]->resultingStateName;
+        Transitions::handle($this, $this->traitStateCurrentField, $resultingState);
+
+        return $this;
     }
 }
