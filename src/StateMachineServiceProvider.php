@@ -50,11 +50,11 @@ class StateMachineServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/states-and-transitions.php', 'states-and-transitions');
+        // $this->mergeConfigFrom(__DIR__.'/../config/states-and-transitions.php', 'states-and-transitions');
 
         // Register the main class to use with the facade
         $this->app->singleton('state-machine', function () {
-            return new StateMachine;
+            return new StateMachine();
         });
     }
 }
