@@ -2,66 +2,102 @@
 
 namespace Mayanksdudakiya\StateMachine;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
+use Mayanksdudakiya\StateMachine\Exceptions\GraphNotFoundException;
 use Mayanksdudakiya\StateMachine\Exceptions\InvalidPropertyException;
 
 trait StateMachine
 {
-    public function __construct(private array $config = [])
-    {
-        $this->initializeConfig();
-        $this->setDefaultState();
-        $this->validateModelProperty();
+    public function __construct(
+        private array $traitStateConfig = [],
+        private array $traitStateFields = [],
+        private string $traitStateCurrentField = '',
+        private string $traitGraphName = '',
+    ) {
     }
 
-    private function initializeConfig(): void
+    private function getConfigs(): array
     {
-        $this->config = config('states-and-transitions');
-    }
+        $casts = $this->getCasts();
 
-    private function setDefaultState(): void
-    {
-        $this->config['property_path'] ??= 'state';
-    }
+        $states = [];
 
-    private function validateModelProperty(): void
-    {
-        $modelProperty = $this->config['property_path'];
-        $className = class_basename($this);
+        foreach ($casts as $field => $state) {
+            if (! is_subclass_of($state, State::class)) {
+                continue;
+            }
 
-        if (!property_exists($this, $modelProperty) && !method_exists($this, $modelProperty)) {
-            throw new InvalidPropertyException("The class `{$className}` does not have the expected property or relationship method `{$modelProperty}`.");
+            $states[] = Config::get($state::config());
+            $this->traitStateFields[] = $field;
         }
+
+        return $states;
     }
 
     public function setGraph(string $graphName): null
     {
-        $className = class_basename($this);
+        $configs = $this->getConfigs();
 
-        if (!empty($this->config['graph']) && $this->config['graph'] !== $graphName) {
-            throw new InvalidPropertyException("The graph name `{$graphName}` does not exists in the config for the class `{$className}`.");
-        }
+        $this->traitGraphName = $graphName;
+
+        $allGraphColumns = array_column($configs, 'graph');
+
+        throw_unless($allGraphColumns, new GraphNotFoundException('No matching graph found. Please provide valid `graph` key name in configurations.'));
+
+        $configKey = array_search($graphName, $allGraphColumns);
+
+        $this->setCurrentConfigAndField($configs, $configKey);
 
         return null;
     }
 
-    public function getGraph(): string
+    private function setCurrentConfigAndField(array $configs, int $configKey): void
     {
-        return '';
+        $this->traitStateConfig = $configs[$configKey];
+        $this->traitStateCurrentField = $this->traitStateFields[$configKey];
     }
 
-    public function getCurrentState(): array
+    public function getCurrentState(): State
     {
-        return [];
+        throw_unless($this->traitStateConfig, new GraphNotFoundException("No matching graph found. Please set graph using `setGraph('graphName')` key name in configurations."));
+
+        $field = $this->{$this->traitStateCurrentField};
+
+        if (empty($this->{$this->traitStateCurrentField})) {
+            return $this->getInitialState();
+        }
+
+        $currentState = $this->findStateByKeyValue('title', $field);
+
+        return new State(
+            $currentState['title'],
+            $currentState
+        );
     }
 
-    public function getNextTransitions(): array
+    private function getInitialState(): State
     {
-        return [];
+        $initialStateColumns = array_column($this->traitStateConfig['states'], 'initial');
+
+        throw_if(count($initialStateColumns) > 1, new InvalidPropertyException("Multiple `initial` states found in `{$this->traitGraphName}` graph."));
+
+        throw_if(count($initialStateColumns) <= 0, new InvalidPropertyException("No `initial` states found in `{$this->traitGraphName}` graph, please set initial state using `'initial' => true`"));
+
+        $initialState = $this->findStateByKeyValue('initial', true);
+
+        return new State(
+            $initialState['title'],
+            $initialState
+        );
     }
 
-    public function process(string $transitions): array
+    private function findStateByKeyValue($key, $value): array
     {
-        return [];
+        return current(
+            array_filter(
+                $this->traitStateConfig['states'],
+                fn ($state) => isset($state[$key]) && $state[$key] === $value
+            )
+        );
     }
 }
