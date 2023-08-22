@@ -35,14 +35,14 @@ composer test
 {{baseUrl}}/api/documentation#/
 ```
 
-### Swagger Currency Converter Demo
-
-
-
+### How To Use State Machine Order Package?
 
 1. This package provides a `StateMachine` trait, this trait can be used in any model class
 
 ```php
+
+use Mayanksdudakiya\StateMachine\StateMachine;
+
 class Order extends Model
 {
     use StateMachine;
@@ -76,13 +76,15 @@ for each corresponding database column.
 <?php
 namespace App\StateMachine\OrderState;
 
+use Mayanksdudakiya\StateMachine\State;
+
 final class OrderState extends State
 {
     public function config(): string
     {
         return 'order-state-and-transition';
         // if config file inside folder then
-        // return 'order/order-state-and-transition.php';
+        // return 'folder.order-state-and-transition';
     }
 }
 ```
@@ -90,6 +92,8 @@ final class OrderState extends State
 ```php
 <?php
 namespace App\StateMachine\PaymentState;
+
+use Mayanksdudakiya\StateMachine\State;
 
 final class PaymentState extends State
 {
@@ -104,7 +108,13 @@ final class PaymentState extends State
 4. Now, casts the States as below
 
 ```php
-class Payment extends Model
+<?php
+namespace App\Models;
+
+use App\StateMachine\OrderState;
+use App\StateMachine\PaymentState;
+
+class Order extends Model
 {
     // …
 
@@ -113,4 +123,88 @@ class Payment extends Model
         'payment_status' => PaymentState::class,
     ];
 }
+```
+
+
+### Trait workflow
+
+```php
+php artisan tinker
+
+// Create a new instance of the Model
+>>> $model = new \App\Models\Model();
+=> App\Models\Model {#3661}
+
+// Define your graph
+>>> $model->setGraph($graph));
+=> null
+
+// Get current state
+>>> dump($model->getCurrentState());
+App\StateMachine\State^ {#3665
+  -name: "state_0"
+  -metadata: array:3 [
+    "title" => "state_0"
+    "uuid" => "6ea65f69-e45d-409e-b740-9a18e7060cbd"
+    "initial" => true
+  ]
+}
+
+// Get next transitions
+>>> dump($model->getNextTransitions());
+array:1 [
+  "state_0_to_state_1" => App\StateMachine\Transition^ {#3675
+    -name: "state_0_to_state_1"
+    -initialStateName: "state_0"
+    -resultingStateName: "state_1"
+    -acceptConditionCallable: null
+    -metadata: array:2 [
+      "from" => "state_0"
+      "to" => array:1 [
+        0 => "state_1"
+      ]
+    ]
+  }
+]
+
+// Progress to next transition and get the current state
+>>> dump($model->process('state_0_to_state_1')->getCurrentState());
+App\StateMachine\State^ {#3677
+  -name: "state_1"
+  -metadata: array:2 [
+    "title" => "state_1"
+    "uuid" => "727abfdd-b726-4dac-a14e-241d9616dc4a"
+  ]
+}
+
+// Get the new available transitions
+>>> dump($model->getNextTransitions());
+array:2 [
+  "state_1_to_state_1" => App\StateMachine\Transition^ {#3674
+    -name: "state_1_to_state_1"
+    -initialStateName: "state_1"
+    -resultingStateName: "state_1"
+    -acceptConditionCallable: null
+    -metadata: array:2 [
+      "from" => "state_1"
+      "to" => array:2 [
+        0 => "state_1"
+        1 => "state_2"
+      ]
+    ]
+  }
+  "state_1_to_state_2" => App\StateMachine\Transition^ {#3672
+    -name: "state_1_to_state_2"
+    -initialStateName: "state_1"
+    -resultingStateName: "state_2"
+    -acceptConditionCallable: null
+    -metadata: array:2 [
+      "from" => "state_1"
+      "to" => array:2 [
+        0 => "state_1"
+        1 => "state_2"
+      ]
+    ]
+  }
+]
 ```
