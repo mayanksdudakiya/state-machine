@@ -100,4 +100,41 @@ trait StateMachine
             )
         );
     }
+
+    private function findTransitionsByKeyValue($key): array
+    {
+        return current($this->traitStateConfig['transitions'][$key]);
+    }
+
+    public function getNextTransitions()
+    {
+        $currentState = $this->getCurrentState()->name;
+        $getTransitions = $this->findTransitionsByKeyValue($currentState);
+
+        $nextTransitions = [];
+
+        $from = $this->cleanTransitionKey($getTransitions['from']);
+
+        foreach($getTransitions['to'] as $key => $toTransition) {
+            $to = $this->cleanTransitionKey($toTransition);
+            $transitionKey = "{$from}_to_{$to}";
+
+            $nextTransitions[$transitionKey] = new Transitions(
+                $transitionKey,
+                $from,
+                $to,
+                null,
+                $getTransitions,
+            );
+
+            $from = $to;
+        }
+
+        return $nextTransitions;
+    }
+
+    private function cleanTransitionKey(string $key): string
+    {
+        return str_replace(' ', '_', $key);
+    }
 }

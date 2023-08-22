@@ -8,7 +8,7 @@ class Transitions
         public string $name = '',
         public string $initialStateName = '',
         public string $resultingStateName = '',
-        public string $acceptConditionCallable = '',
+        public ?string $acceptConditionCallable = '',
         public array $metadata = [],
     ) {
     }
