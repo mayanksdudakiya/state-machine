@@ -5,35 +5,71 @@ namespace Mayanksdudakiya\StateMachine;
 use Illuminate\Support\Facades\Config;
 use Mayanksdudakiya\StateMachine\Exceptions\GraphNotFoundException;
 use Mayanksdudakiya\StateMachine\Exceptions\InvalidPropertyException;
+use Mayanksdudakiya\StateMachine\Exceptions\MissingConfigException;
+use Mayanksdudakiya\StateMachine\Exceptions\StateException;
 use Mayanksdudakiya\StateMachine\Exceptions\TransitionsException;
 
 trait StateMachine
 {
-    public function __construct(
-        private array $traitStateConfig = [],
-        private array $traitStateFields = [],
-        private array $nextTransitions = [],
-        private string $traitStateCurrentField = '',
-        private string $traitGraphName = '',
-    ) {
+    private array $traitStateConfig = [];
+    private array $traitStateFields = [];
+    private array $nextTransitions = [];
+    private string $traitStateCurrentField = '';
+    private string $traitGraphName = '';
+    private string $traitStateBaseClass = self::class;
+
+    public static function bootStateMachine(): void
+    {
+        self::creating(function ($model) {
+            $model->setStateDefaults();
+        });
+    }
+
+    public function initializeStateMachine(): void
+    {
+        $this->setStateDefaults();
+    }
+
+    private function setStateDefaults()
+    {
+        $configs = $this->getConfigs();
+
+        foreach ($configs as $config) {
+            $this->traitStateConfig = $config;
+            $field = $this->{$config['property_path']};
+
+            if (!empty($field)) {
+                continue;
+            }
+
+            $initialState = $this->getCurrentState();
+
+            $this->{$config['property_path']} = $initialState->name;
+        }
     }
 
     private function getConfigs(): array
     {
         $casts = $this->getCasts();
 
-        $states = [];
+        $configs = [];
 
         foreach ($casts as $field => $state) {
             if (! is_subclass_of($state, State::class)) {
                 continue;
             }
 
-            $states[] = Config::get($state::config());
+            if (!$config = Config::get($state::config())) {
+                continue;
+            }
+
+            $configs[] = $config;
             $this->traitStateFields[] = $field;
         }
 
-        return $states;
+        throw_unless($configs, new MissingConfigException("No config file found in {$this->traitStateBaseClass}"));
+
+        return $configs;
     }
 
     public function setGraph(string $graphName): null
