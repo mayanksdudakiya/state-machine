@@ -84,6 +84,8 @@ trait StateMachine
 
         $configKey = array_search($graphName, $allGraphColumns);
 
+        throw_if($configKey === false, new GraphNotFoundException('No matching graph found. Please provide valid `graph` key name in configurations.'));
+
         $this->setCurrentConfigAndField($configs, $configKey);
 
         return null;
